@@ -1,0 +1,27 @@
+Create endpoint:
+
+POST /api/analyze/url
+
+Request:
+{
+  "url":"https://..."
+}
+
+Validation:
+- URL required
+- Valid URL
+
+Save record in MongoDB.
+
+Return:
+{
+  analysisId,
+  status
+}
+
+Generate:
+Controller
+Service
+Route
+
+Use TypeScript.

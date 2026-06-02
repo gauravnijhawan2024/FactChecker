@@ -1,0 +1,32 @@
+I want to build an AI-powered Fact Check application.
+
+Tech Stack:
+Frontend: React, Vite, TypeScript, TailwindCSS
+Backend: Node.js, Express, TypeScript
+Database: MongoDB, Mongoose
+AI: OpenAI API
+Automation: Playwright
+
+The application should allow users to:
+1. Paste a URL
+2. Paste raw text
+3. Upload an image
+
+The system should:
+1. Extract content
+2. Identify factual claims
+3. Search for supporting and contradicting evidence
+4. Analyze credibility
+5. Generate a verdict
+
+Before generating any code:
+1. Design the architecture
+2. Explain the folder structure
+3. Design MongoDB collections
+4. Design API endpoints
+5. Explain service responsibilities
+6. Explain AI workflow
+7. Explain Playwright workflow
+
+Do not generate code.
+Wait for approval.

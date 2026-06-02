@@ -1,0 +1,25 @@
+Create a MongoDB model called Analysis.
+
+Schema:
+{
+  inputType,
+  sourceUrl,
+  rawText,
+  extractedContent,
+  claims,
+  evidence,
+  verdict,
+  confidence,
+  summaryForHumans,
+  aiLogs,
+  createdAt
+}
+
+Use Mongoose.
+
+Generate:
+1. TypeScript interfaces
+2. Mongoose schema
+3. Model export
+
+Generate complete code.

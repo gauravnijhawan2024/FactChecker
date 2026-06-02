@@ -1,0 +1,11 @@
+node_modules/
+dist/
+frontend/dist/
+backend/dist/
+backend/.env
+backend/uploads/*
+!backend/uploads/.gitkeep
+test-results/
+playwright-report/
+.DS_Store
+

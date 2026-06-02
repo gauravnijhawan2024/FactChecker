@@ -1,0 +1,23 @@
+Create EvidenceService.
+
+Input:
+List of claims.
+
+Task:
+Search the web for supporting and contradicting evidence.
+
+Return:
+[
+  {
+    source,
+    url,
+    snippet
+  }
+]
+
+Create:
+SearchProvider interface
+WebSearchProvider
+EvidenceService
+
+Generate code.

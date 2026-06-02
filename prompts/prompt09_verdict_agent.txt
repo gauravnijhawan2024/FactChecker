@@ -1,0 +1,27 @@
+Create CredibilityAnalysisService.
+
+Inputs:
+1. Extracted content
+2. Claims
+3. Evidence
+
+Use OpenAI.
+
+Return JSON:
+{
+  verdict:
+  "True" |
+  "Likely True" |
+  "Insufficient Evidence" |
+  "Likely False" |
+  "False",
+
+  confidence,
+  evidenceFor,
+  evidenceAgainst,
+  summaryForHumans
+}
+
+Require JSON output.
+
+Generate implementation.

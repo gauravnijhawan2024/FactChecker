@@ -1,0 +1,27 @@
+Build frontend.
+
+Page 1:
+Home
+
+Components:
+- URL input
+- Text input
+- Image upload
+- Analyze button
+
+Page 2:
+Analysis Result
+
+Components:
+- Verdict badge
+- Confidence score
+- Claims list
+- Evidence cards
+- Human summary
+
+Use:
+React
+TypeScript
+Tailwind
+
+Generate one component at a time.

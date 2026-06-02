@@ -1,0 +1,28 @@
+Create OpenAI integration.
+
+Input:
+Extracted page content.
+
+Task:
+Identify factual claims.
+
+Return JSON:
+{
+  claims:[
+    {
+      text,
+      category,
+      confidence
+    }
+  ]
+}
+
+Requirements:
+- Structured JSON output
+- Error handling
+- Retry logic
+
+Create:
+OpenAIService
+
+Generate complete implementation.

@@ -1,0 +1,15 @@
+Generate the complete project structure.
+
+Requirements:
+Frontend: React, Vite, TypeScript, TailwindCSS
+Backend: Node.js, Express, TypeScript
+
+Create:
+frontend/
+backend/
+
+Show complete folder structure.
+Then generate commands to create the project.
+
+Do not generate business logic yet.
+Generate one section at a time.

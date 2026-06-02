@@ -1,0 +1,23 @@
+Create a Playwright extraction engine.
+
+Input:
+URL
+
+Output:
+{
+  title,
+  description,
+  pageText,
+  author,
+  publishDate,
+  images
+}
+
+Create:
+IContentExtractor
+NewsExtractor
+ExtractorFactory
+
+Use TypeScript.
+Generate one file at a time.
+Do not implement social media login yet.

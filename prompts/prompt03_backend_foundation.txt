@@ -1,0 +1,29 @@
+Generate the backend foundation.
+
+Requirements:
+- Node.js
+- Express
+- TypeScript
+- Mongoose
+
+Create:
+src/
+controllers/
+services/
+models/
+routes/
+middleware/
+config/
+types/
+utils/
+
+Generate:
+1. package.json
+2. tsconfig.json
+3. app.ts
+4. server.ts
+5. database connection
+6. environment configuration
+
+Generate one file at a time.
+Wait for approval after each file.
