@@ -1,11 +1,14 @@
-import { OpenAIService } from "../ai/OpenAIService.js";
+import type { AIProvider } from "./ai/AIProvider.js";
 import type { Claim, Evidence, ExtractedContent } from "../types/analysis.js";
 
 export class CredibilityAnalysisService {
-  constructor(private openAiService = new OpenAIService()) {}
+  constructor(private aiProvider: AIProvider) {}
 
   analyze(content: ExtractedContent, claims: Claim[], evidence: Evidence[]) {
-    return this.openAiService.analyzeCredibility(content, claims, evidence);
+    return this.aiProvider.generateVerdict({
+      extractedContent: content,
+      claims,
+      evidence
+    });
   }
 }
-

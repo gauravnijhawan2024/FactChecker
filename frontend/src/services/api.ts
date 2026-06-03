@@ -1,4 +1,4 @@
-import type { Analysis } from "../types/analysis";
+import type { AIProviderId, Analysis } from "../types/analysis";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000/api";
 
@@ -11,29 +11,30 @@ async function readJson<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function submitUrl(url: string) {
+export async function submitUrl(url: string, aiProvider: AIProviderId) {
   const response = await fetch(`${API_BASE_URL}/analyze/url`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url })
+    body: JSON.stringify({ url, aiProvider })
   });
 
   return readJson<{ analysisId: string; status: string }>(response);
 }
 
-export async function submitText(text: string) {
+export async function submitText(text: string, aiProvider: AIProviderId) {
   const response = await fetch(`${API_BASE_URL}/analyze/text`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text })
+    body: JSON.stringify({ text, aiProvider })
   });
 
   return readJson<{ analysisId: string; status: string }>(response);
 }
 
-export async function submitImage(image: File) {
+export async function submitImage(image: File, aiProvider: AIProviderId) {
   const formData = new FormData();
   formData.append("image", image);
+  formData.append("aiProvider", aiProvider);
 
   const response = await fetch(`${API_BASE_URL}/analyze/image`, {
     method: "POST",
@@ -47,4 +48,3 @@ export async function getAnalysis(id: string) {
   const response = await fetch(`${API_BASE_URL}/analyze/${id}`);
   return readJson<Analysis>(response);
 }
-

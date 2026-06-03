@@ -5,6 +5,7 @@ const ClaimSchema = new Schema(
     text: { type: String, required: true },
     category: { type: String, required: true },
     confidence: { type: Number, required: true, min: 0, max: 1 },
+    claimKind: { type: String, enum: ["explicit", "implied"], required: true, default: "explicit" },
     verdict: {
       type: String,
       enum: ["True", "Likely True", "Insufficient Evidence", "Likely False", "False"]
@@ -50,6 +51,7 @@ const AiLogSchema = new Schema(
 const AnalysisSchema = new Schema(
   {
     inputType: { type: String, enum: ["url", "text", "image"], required: true },
+    aiProvider: { type: String, enum: ["gemini", "openai", "ollama"], required: true, default: "gemini" },
     status: {
       type: String,
       enum: ["pending", "extracting", "identifying_claims", "searching_evidence", "generating_verdict", "completed", "failed"],
@@ -90,4 +92,3 @@ const AnalysisSchema = new Schema(
 
 export type AnalysisDocument = InferSchemaType<typeof AnalysisSchema>;
 export const Analysis = model("Analysis", AnalysisSchema);
-

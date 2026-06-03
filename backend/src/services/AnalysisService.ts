@@ -1,21 +1,20 @@
 import { Analysis } from "../models/Analysis.js";
 import { ExtractorFactory } from "../playwright/ExtractorFactory.js";
-import type { InputType } from "../types/analysis.js";
+import type { AIProviderId, InputType } from "../types/analysis.js";
 import { HttpError } from "../utils/httpError.js";
 import { CredibilityAnalysisService } from "./CredibilityAnalysisService.js";
 import { EvidenceService } from "./EvidenceService.js";
-import { OpenAIService } from "../ai/OpenAIService.js";
+import { WebSearchProvider } from "./WebSearchProvider.js";
+import { formatAnalysisError } from "../utils/formatAnalysisError.js";
+import { isAIProviderId } from "./ai/AIProvider.js";
+import { createAIProvider } from "./ai/providerFactory.js";
 
 export class AnalysisService {
-  private openAiService = new OpenAIService();
-  private extractorFactory = new ExtractorFactory(this.openAiService);
-  private evidenceService = new EvidenceService();
-  private credibilityAnalysisService = new CredibilityAnalysisService(this.openAiService);
-
-  async createUrlAnalysis(url: string) {
+  async createUrlAnalysis(url: string, aiProvider: AIProviderId = "gemini") {
     const analysis = await Analysis.create({
       inputType: "url",
       sourceUrl: url,
+      aiProvider,
       status: "pending"
     });
 
@@ -26,10 +25,11 @@ export class AnalysisService {
     return analysis;
   }
 
-  async createTextAnalysis(rawText: string) {
+  async createTextAnalysis(rawText: string, aiProvider: AIProviderId = "gemini") {
     const analysis = await Analysis.create({
       inputType: "text",
       rawText,
+      aiProvider,
       status: "pending"
     });
 
@@ -40,10 +40,11 @@ export class AnalysisService {
     return analysis;
   }
 
-  async createImageAnalysis(imagePath: string) {
+  async createImageAnalysis(imagePath: string, aiProvider: AIProviderId = "gemini") {
     const analysis = await Analysis.create({
       inputType: "image",
       imagePath,
+      aiProvider,
       status: "pending"
     });
 
@@ -70,8 +71,14 @@ export class AnalysisService {
     if (!analysis) return;
 
     try {
+      const providerId = isAIProviderId(analysis.aiProvider) ? analysis.aiProvider : "gemini";
+      const aiProvider = createAIProvider(providerId);
+      const extractorFactory = new ExtractorFactory(aiProvider);
+      const evidenceService = new EvidenceService(new WebSearchProvider(aiProvider));
+      const credibilityAnalysisService = new CredibilityAnalysisService(aiProvider);
+
       await analysis.updateOne({ status: "extracting" });
-      const extractor = this.extractorFactory.create(analysis.inputType as InputType);
+      const extractor = extractorFactory.create(analysis.inputType as InputType);
       const input = analysis.inputType === "url" ? analysis.sourceUrl : analysis.inputType === "image" ? analysis.imagePath : analysis.rawText;
 
       if (!input) throw new Error("Missing analysis input");
@@ -79,13 +86,13 @@ export class AnalysisService {
       const extractedContent = await extractor.extract(input);
       await Analysis.findByIdAndUpdate(id, { extractedContent, status: "identifying_claims" });
 
-      const claims = await this.openAiService.extractClaims(extractedContent);
+      const claims = await aiProvider.extractClaims(extractedContent.pageText);
       await Analysis.findByIdAndUpdate(id, {
         claims,
         $push: {
           aiLogs: {
             type: "claim_extraction",
-            model: "configured-openai-model",
+            model: aiProvider.model,
             prompt: "Extract verifiable factual claims",
             response: { claims }
           }
@@ -93,13 +100,13 @@ export class AnalysisService {
         status: "searching_evidence"
       });
 
-      const evidence = await this.evidenceService.findEvidence(claims);
+      const evidence = await evidenceService.findEvidence(claims);
       await Analysis.findByIdAndUpdate(id, {
         evidence,
         $push: {
           aiLogs: {
             type: "evidence_search",
-            model: "configured-openai-search-model",
+            model: aiProvider.model,
             prompt: "Find supporting and contradicting evidence",
             response: { evidence }
           }
@@ -107,18 +114,10 @@ export class AnalysisService {
         status: "generating_verdict"
       });
 
-      const verdict = await this.credibilityAnalysisService.analyze(extractedContent, claims, evidence);
-      const mergedClaims = claims.map((claim) => {
-        const reviewedClaim = verdict.claims?.find((item) => item.text === claim.text);
-        return {
-          ...claim,
-          verdict: reviewedClaim?.verdict,
-          reasoning: reviewedClaim?.reasoning
-        };
-      });
+      const verdict = await credibilityAnalysisService.analyze(extractedContent, claims, evidence);
 
       await Analysis.findByIdAndUpdate(id, {
-        claims: mergedClaims,
+        claims,
         verdict,
         confidence: verdict.confidence,
         summaryForHumans: verdict.summaryForHumans,
@@ -127,7 +126,7 @@ export class AnalysisService {
         $push: {
           aiLogs: {
             type: "credibility_analysis",
-            model: "configured-openai-model",
+            model: aiProvider.model,
             prompt: "Generate fact-check verdict",
             response: verdict
           }
@@ -136,9 +135,8 @@ export class AnalysisService {
     } catch (error) {
       await Analysis.findByIdAndUpdate(id, {
         status: "failed",
-        errorMessage: error instanceof Error ? error.message : "Analysis failed"
+        errorMessage: formatAnalysisError(error)
       });
     }
   }
 }
-

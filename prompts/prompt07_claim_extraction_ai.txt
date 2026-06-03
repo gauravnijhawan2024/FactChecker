@@ -1,4 +1,4 @@
-Create OpenAI integration.
+Create Google Gemini integration.
 
 Input:
 Extracted page content.
@@ -23,6 +23,6 @@ Requirements:
 - Retry logic
 
 Create:
-OpenAIService
+GeminiService
 
 Generate complete implementation.

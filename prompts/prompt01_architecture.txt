@@ -4,7 +4,7 @@ Tech Stack:
 Frontend: React, Vite, TypeScript, TailwindCSS
 Backend: Node.js, Express, TypeScript
 Database: MongoDB, Mongoose
-AI: OpenAI API
+AI: Google Gemini API
 Automation: Playwright
 
 The application should allow users to:

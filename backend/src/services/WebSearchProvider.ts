@@ -1,12 +1,11 @@
-import { OpenAIService } from "../ai/OpenAIService.js";
+import type { AIProvider } from "./ai/AIProvider.js";
 import type { Claim, Evidence } from "../types/analysis.js";
 import type { SearchProvider } from "./SearchProvider.js";
 
 export class WebSearchProvider implements SearchProvider {
-  constructor(private openAiService = new OpenAIService()) {}
+  constructor(private aiProvider: AIProvider) {}
 
   search(claims: Claim[]): Promise<Evidence[]> {
-    return this.openAiService.searchEvidence(claims);
+    return this.aiProvider.searchEvidence(claims);
   }
 }
-

@@ -1,7 +1,7 @@
 import { Loader2, Play, Upload } from "lucide-react";
 import { useState } from "react";
 import { submitImage, submitText, submitUrl } from "../services/api";
-import type { InputMode } from "../types/analysis";
+import type { AIProviderId, InputMode } from "../types/analysis";
 import { ModeTabs } from "./ModeTabs";
 
 interface AnalyzeFormProps {
@@ -10,6 +10,7 @@ interface AnalyzeFormProps {
 
 export function AnalyzeForm({ onCreated }: AnalyzeFormProps) {
   const [mode, setMode] = useState<InputMode>("url");
+  const [aiProvider, setAiProvider] = useState<AIProviderId>("gemini");
   const [url, setUrl] = useState("");
   const [text, setText] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -24,11 +25,11 @@ export function AnalyzeForm({ onCreated }: AnalyzeFormProps) {
     try {
       const result =
         mode === "url"
-          ? await submitUrl(url)
+          ? await submitUrl(url, aiProvider)
           : mode === "text"
-            ? await submitText(text)
+            ? await submitText(text, aiProvider)
             : image
-              ? await submitImage(image)
+              ? await submitImage(image, aiProvider)
               : null;
 
       if (!result) {
@@ -50,6 +51,19 @@ export function AnalyzeForm({ onCreated }: AnalyzeFormProps) {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-moss">FactChecker</p>
         <h1 className="mt-2 text-3xl font-semibold text-ink sm:text-4xl">Evidence-first claim analysis</h1>
       </div>
+
+      <label className="block">
+        <span className="mb-2 block text-sm font-medium text-ink">AI provider</span>
+        <select
+          value={aiProvider}
+          onChange={(event) => setAiProvider(event.target.value as AIProviderId)}
+          className="h-12 w-full rounded-md border border-line bg-white px-4 text-base shadow-sm"
+        >
+          <option value="gemini">Gemini</option>
+          <option value="openai">OpenAI</option>
+          <option value="ollama">Ollama</option>
+        </select>
+      </label>
 
       <ModeTabs mode={mode} onChange={setMode} />
 
@@ -103,4 +117,3 @@ export function AnalyzeForm({ onCreated }: AnalyzeFormProps) {
     </form>
   );
 }
-

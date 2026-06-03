@@ -5,7 +5,7 @@ Inputs:
 2. Claims
 3. Evidence
 
-Use OpenAI.
+Use Google Gemini.
 
 Return JSON:
 {

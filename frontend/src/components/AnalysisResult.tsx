@@ -1,4 +1,4 @@
-import { ExternalLink, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ExternalLink, ShieldCheck } from "lucide-react";
 import type { Analysis } from "../types/analysis";
 import { StatusRail } from "./StatusRail";
 import { VerdictBadge } from "./VerdictBadge";
@@ -17,6 +17,12 @@ export function AnalysisResult({ analysis }: AnalysisResultProps) {
   }
 
   const confidence = Math.round((analysis.confidence ?? analysis.verdict?.confidence ?? 0) * 100);
+  const explicitClaims = analysis.claims.filter((claim) => claim.claimKind !== "implied");
+  const impliedClaims = analysis.claims.filter((claim) => claim.claimKind === "implied");
+  const claimGroups = [
+    { title: "Explicit Claims", claims: explicitClaims },
+    { title: "Implied Claims", claims: impliedClaims }
+  ].filter((group) => group.claims.length > 0);
 
   return (
     <section className="flex h-full min-h-[520px] flex-col gap-5 rounded-md border border-line bg-white p-5 shadow-panel">
@@ -31,7 +37,13 @@ export function AnalysisResult({ analysis }: AnalysisResultProps) {
       <StatusRail status={analysis.status} />
 
       {analysis.status === "failed" && (
-        <p className="rounded-md border border-ember/30 bg-ember/10 px-3 py-2 text-sm text-ember">{analysis.errorMessage}</p>
+        <div className="rounded-md border border-ember/30 bg-ember/10 p-4 text-ember">
+          <div className="flex items-center gap-2 font-semibold">
+            <AlertTriangle size={18} />
+            Analysis paused
+          </div>
+          <p className="mt-2 text-sm leading-6">{analysis.errorMessage ?? "Analysis failed. Please try again shortly."}</p>
+        </div>
       )}
 
       {analysis.status !== "completed" && analysis.status !== "failed" && (
@@ -53,19 +65,26 @@ export function AnalysisResult({ analysis }: AnalysisResultProps) {
             </div>
           </div>
 
-          <div>
-            <h3 className="text-base font-semibold text-ink">Claims</h3>
-            <div className="mt-3 grid gap-3">
-              {analysis.claims.map((claim) => (
-                <article key={claim.text} className="rounded-md border border-line p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <p className="font-medium text-ink">{claim.text}</p>
-                    {claim.verdict && <VerdictBadge verdict={claim.verdict} />}
-                  </div>
-                  <p className="mt-2 text-sm text-ink/70">{claim.reasoning ?? claim.category}</p>
-                </article>
-              ))}
-            </div>
+          <div className="grid gap-5">
+            {claimGroups.map((group) => (
+              <div key={group.title}>
+                <h3 className="text-base font-semibold text-ink">{group.title}</h3>
+                <div className="mt-3 grid gap-3">
+                  {group.claims.map((claim) => (
+                    <article key={`${claim.claimKind}-${claim.text}`} className="rounded-md border border-line p-4">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <p className="font-medium text-ink">{claim.text}</p>
+                        {claim.verdict && <VerdictBadge verdict={claim.verdict} />}
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink/70">
+                        <span className="rounded bg-paper px-2 py-1 text-xs font-semibold capitalize text-ink">{claim.claimKind}</span>
+                        <span>{claim.reasoning ?? claim.category}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
 
           <div>
@@ -92,4 +111,3 @@ export function AnalysisResult({ analysis }: AnalysisResultProps) {
     </section>
   );
 }
-
